@@ -90,7 +90,7 @@ static bool CheckFont(CStdString& strPath, const CStdString& newPath,
   return true;
 }
 
-CGUIFont* GUIFontManager::LoadTTF(const CStdString& strFontName, const CStdString& strFilename, color_t textColor, color_t shadowColor, const int iSize, const int iStyle, bool border, float lineSpacing, float aspect, const RESOLUTION_INFO *sourceRes, bool preserveAspect)
+CGUIFont* GUIFontManager::LoadTTF(const CStdString& strFontName, const CStdString& strFilename, color_t textColor, color_t shadowColor, const int iSize, const int iStyle, bool border, float lineSpacing, float aspect, const RESOLUTION_INFO *sourceRes, bool preserveAspect, bool precache /*= false */)
 {
   float originalAspect = aspect;
 
@@ -132,7 +132,7 @@ CGUIFont* GUIFontManager::LoadTTF(const CStdString& strFontName, const CStdStrin
   if (!pFontFile)
   {
     pFontFile = new CGUIFontTTF(TTFfontName);
-    bool bFontLoaded = pFontFile->Load(strPath, newSize, aspect, 1.0f, border);
+    bool bFontLoaded = pFontFile->Load(strPath, newSize, aspect, 1.0f, border, precache);
 
     if (!bFontLoaded)
     {

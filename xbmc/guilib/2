@@ -987,7 +987,7 @@ void CGUIWindowFullScreen::RenderTTFSubtitles(bool forcetest /* = false */)
 {
   if ((g_application.GetCurrentPlayer() == EPC_MPLAYER || 
       g_application.GetCurrentPlayer() == EPC_DVDPLAYER) &&
-      CUtil::IsUsingTTFSubtitles() && (forcetest || g_application.m_pPlayer->GetSubtitleVisible()))
+      CUtil::IsUsingTTFSubtitles() && (g_application.m_pPlayer->GetSubtitleVisible()))
   {
     CSingleLock lock (m_fontLock);
 
@@ -995,10 +995,8 @@ void CGUIWindowFullScreen::RenderTTFSubtitles(bool forcetest /* = false */)
       return;
 
     CStdString subtitleText = "How now brown cow";
-    if (forcetest || g_application.m_pPlayer->GetCurrentSubtitle(subtitleText))
+    if (g_application.m_pPlayer->GetCurrentSubtitle(subtitleText))
     {
-      if (forcetest)
-        subtitleText = "INVISIBLE SUBS FOR INIT";
       // Remove HTML-like tags from the subtitles until
       subtitleText.Replace("\\r", "");
       subtitleText.Replace("\r", "");
@@ -1053,10 +1051,7 @@ void CGUIWindowFullScreen::RenderTTFSubtitles(bool forcetest /* = false */)
         y = std::min(y, g_settings.m_ResInfo[res].Overscan.bottom - textHeight);
       }
 
-      if (forcetest)
-         m_subsLayout->RenderOutline(x, y, 0x00FFFFFF, 0x00FFFFFF, XBFONT_CENTER_X, maxWidth); //00 alpha=transparent, FF red FF green FF blue (note 0x0 does not work)
-      else
-         m_subsLayout->RenderOutline(x, y, 0, 0xFF000000, XBFONT_CENTER_X, maxWidth);
+      m_subsLayout->RenderOutline(x, y, 0, 0xFF000000, XBFONT_CENTER_X, maxWidth);
 
       // reset rendering resolution
       g_graphicsContext.SetRenderingResolution(m_coordsRes, m_needsScaling);

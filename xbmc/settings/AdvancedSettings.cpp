@@ -75,6 +75,8 @@ void CAdvancedSettings::Initialize()
   m_audioDefaultPlayer = "paplayer";
   m_audioPlayCountMinimumPercent = 90.0f;
   m_audioHost = "default";
+  m_videoSubsTTFPreCache = false;
+  m_videoSubsTTFBorderFontDisable = false;
 
   m_videoSubsDelayRange = 10;
   m_videoAudioDelayRange = 10;
@@ -481,6 +483,62 @@ void CAdvancedSettings::ParseSettingsFile(const CStdString &file)
     XMLUtils::GetBoolean(pElement,"allowmpeg4vaapi",m_videoAllowMpeg4VAAPI);    
     XMLUtils::GetBoolean(pElement, "disablebackgrounddeinterlace", m_videoDisableBackgroundDeinterlace);
     XMLUtils::GetInt(pElement, "useocclusionquery", m_videoCaptureUseOcclusionQuery, -1, 1);
+
+    XMLUtils::GetBoolean(pElement, "substtfprecache", m_videoSubsTTFPreCache);
+    XMLUtils::GetBoolean(pElement, "substtfborderfontdisable", m_videoSubsTTFBorderFontDisable);
+
+    TiXmlElement* pSubsTTFPreCacheCodes = pElement->FirstChildElement("substtfprecachecodes");
+    if (pSubsTTFPreCacheCodes)
+    {
+      m_SubsTTFPreCacheCodes.clear();
+      TiXmlNode* pAdd = pSubsTTFPreCacheCodes->FirstChild("add");
+
+      while (pAdd)
+      {
+
+        CStdString strAdd;
+        if (pAdd)
+            strAdd = pAdd->FirstChild()->Value();
+        if (!strAdd.IsEmpty())
+        {
+
+          CStdStringArray components;
+          StringUtils::SplitString(strAdd, ",", components);
+          // strtoul() conversion may give 0 for error (eg for non integer strings) and for real 0 integer char
+          // but that should be fine and we will silently accept this as a zero (though the user
+          // will not be warned of any bad strings)
+          for (unsigned int i=0; i<components.size(); ++i)
+          {
+            // check for a range
+            CLog::Log(LOGDEBUG,"Advanced Settings Load substtf pre-cache code add %s", components[i].c_str());
+            CStdStringArray rangecomponents;
+            StringUtils::SplitString(components[i], "-", rangecomponents);
+            if (rangecomponents.size() == 2)
+            {
+               unsigned int min = strtoul(rangecomponents[0].c_str(), NULL, 0);
+               unsigned int max = strtoul(rangecomponents[1].c_str(), NULL, 0);
+               for (unsigned int j=min; j<=max; j++)
+               {
+                  m_SubsTTFPreCacheCodes.push_back(j);
+               }
+            }
+            else
+            {
+               unsigned int code = strtoul(components[i].c_str(), NULL, 0);
+               m_SubsTTFPreCacheCodes.push_back(code);
+            }
+          }
+        }
+
+        // get next one
+        pAdd = pAdd->NextSibling("add");
+      }
+      // now remove any duplicates (via sort->unique->erase algo)
+      std::sort(m_SubsTTFPreCacheCodes.begin(),m_SubsTTFPreCacheCodes.end());
+      std::vector<unsigned int>::iterator new_end;
+      new_end = std::unique(m_SubsTTFPreCacheCodes.begin(),m_SubsTTFPreCacheCodes.end());
+      m_SubsTTFPreCacheCodes.erase(new_end, m_SubsTTFPreCacheCodes.end());
+    }
 
     TiXmlElement* pAdjustRefreshrate = pElement->FirstChildElement("adjustrefreshrate");
     if (pAdjustRefreshrate)

@@ -1,0 +1,20 @@
+CXXFLAGS += -D__STDC_FORMAT_MACROS
+
+SRCS=	\
+	OMXPlayer.cpp \
+	OMXClock.cpp \
+	OMXCore.cpp \
+	OMXAudio.cpp \
+	OMXVideo.cpp \
+	OMXAudioCodecOMX.cpp \
+	OMXPlayerAudio.cpp \
+	OMXPlayerVideo.cpp \
+	OMXImage.cpp \
+	OMXThread.cpp \
+	BitstreamConverter.cpp
+
+LIB=	OMXPlayer.a
+
+include /home/valerio/xbmc-rbp/Makefile.include
+-include $(patsubst %.cpp,%.P,$(patsubst %.c,%.P,$(SRCS)))
+
